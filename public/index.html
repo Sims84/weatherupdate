@@ -145,6 +145,26 @@ body{background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSy
 </div>
 
 <div class="sec">
+  <div class="slbl">Radarblikk · MET Noreg</div>
+  <div class="card" style="padding:0">
+    <div style="position:relative">
+      <img id="radarimg" src="/api/radar/image" alt="Nedbørsradar Noreg" style="width:100%;display:block;background:var(--blue-pale);min-height:200px;object-fit:contain">
+      <span style="position:absolute;top:8px;right:8px;background:#d63;color:#fff;font-size:9px;font-weight:700;letter-spacing:.08em;padding:2px 8px;border-radius:4px;text-transform:uppercase">LIVE</span>
+    </div>
+    <div style="padding:.5rem 1rem .375rem;display:flex;gap:10px;border-bottom:1px solid var(--bg);flex-wrap:wrap;align-items:center">
+      <span style="font-size:10px;color:var(--text2);display:flex;align-items:center;gap:4px"><span style="display:inline-block;width:10px;height:10px;background:#4caf50;border-radius:2px"></span>Regn</span>
+      <span style="font-size:10px;color:var(--text2);display:flex;align-items:center;gap:4px"><span style="display:inline-block;width:10px;height:10px;background:#42a5f5;border-radius:2px"></span>Snø</span>
+      <span style="font-size:10px;color:var(--text2);display:flex;align-items:center;gap:4px"><span style="display:inline-block;width:10px;height:10px;background:#ab47bc;border-radius:2px"></span>Sludd</span>
+      <span style="font-size:10px;color:var(--text2);display:flex;align-items:center;gap:4px"><span style="display:inline-block;width:10px;height:10px;background:#555;border-radius:2px"></span>Klart</span>
+    </div>
+    <div style="padding:.5rem 1rem .25rem;display:flex;align-items:center;gap:5px">
+      <span style="display:inline-block;font-size:9px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;background:var(--blue-pale);color:var(--blue-deep);border-radius:4px;padding:2px 6px">AI · Nynorsk</span>
+    </div>
+    <div id="radartext" style="padding:.25rem 1rem .875rem;font-size:13px;color:var(--text2);line-height:1.6">Hentar radaranalyse...</div>
+  </div>
+</div>
+
+<div class="sec">
   <div class="slbl">Webkamera · Neumantrekket</div>
   <div class="card" style="padding:0">
     <img class="wcimg" id="wcimg" src="/api/webcam/image/neuman1" alt="Hodlekve webkamera" onerror="this.style.display='none';document.getElementById('wcerr').style.display='flex'">
@@ -243,9 +263,23 @@ async function load(){
   }
 }
 
+async function loadRadar(){
+  try{
+    const r=await fetch('/api/radar');
+    const j=await r.json();
+    if(j.ok)document.getElementById('radartext').textContent=j.data.analysisText;
+    else document.getElementById('radartext').textContent='Radaranalyse utilgjengeleg.';
+  }catch(e){
+    document.getElementById('radartext').textContent='Kunne ikkje hente radaranalyse.';
+  }
+}
+
 load();
+loadRadar();
 setInterval(load,10*60*1000);
 setInterval(()=>{document.getElementById('wcimg').src=`/api/webcam/image/neuman1?t=${Date.now()}`},7*60*1000);
+setInterval(()=>{document.getElementById('radarimg').src=`/api/radar/image?t=${Date.now()}`},5*60*1000);
+setInterval(loadRadar,15*60*1000);
 </script>
 </body>
 </html>

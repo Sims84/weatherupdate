@@ -5,6 +5,7 @@ const { getConditions } = require('./src/conditions');
 const { fetchForecast } = require('./src/met');
 const { fetchObservations } = require('./src/regobs');
 const { getWebcamData, CAMERAS } = require('./src/webcam');
+const { fetchRadarAnalysis, fetchRadarImage } = require('./src/radar');
 
 const app = express();
 const PORT = process.env.PORT || 3030;
@@ -89,6 +90,29 @@ app.get('/api/webcam/image/:cameraKey', async (req, res) => {
   }
 });
 
+// Radar analysis — AI Nynorsk text from Claude Vision (cached 15 min)
+app.get('/api/radar', async (req, res) => {
+  try {
+    const data = await fetchRadarAnalysis();
+    res.json({ ok: true, data });
+  } catch (err) {
+    console.error('[/api/radar]', err);
+    res.status(500).json({ ok: false, error: err.message });
+  }
+});
+
+// Radar image proxy — live PNG from MET Norway (cached 15 min)
+app.get('/api/radar/image', async (req, res) => {
+  try {
+    const { buffer } = await fetchRadarImage();
+    res.setHeader('Cache-Control', 'public, max-age=900');
+    res.setHeader('Content-Type', 'image/png');
+    res.send(buffer);
+  } catch (err) {
+    res.status(502).json({ ok: false, error: err.message });
+  }
+});
+
 // Health check
 app.get('/health', (req, res) => {
   res.json({ ok: true, uptime: Math.round(process.uptime()), ts: new Date().toISOString() });
@@ -106,6 +130,8 @@ app.listen(PORT, () => {
   console.log('  GET /api/observations      Regobs');
   console.log('  GET /api/webcam            webcam + vision');
   console.log('  GET /api/webcam/image/:key raw JPEG proxy');
+  console.log('  GET /api/radar          radar AI analysis (Nynorsk)');
+  console.log('  GET /api/radar/image    live radar PNG from MET');
   console.log('  GET /health\n');
 
   getConditions()
