@@ -49,7 +49,7 @@ body{background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSy
 .atitle{font-size:13px;font-weight:600;color:var(--text);margin-bottom:2px}
 .atext{font-size:12px;color:var(--text2);line-height:1.5}
 
-.metrics{display:grid;grid-template-columns:repeat(3,1fr)}
+.metrics{display:grid;grid-template-columns:repeat(4,1fr)}
 .metric{padding:1rem;border-right:1px solid var(--bg);text-align:center}
 .metric:last-child{border-right:none}
 .ml{font-size:10px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:6px}
@@ -77,6 +77,8 @@ body{background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSy
 .fdw{font-size:10px;color:var(--muted);margin-top:4px}
 .fd.today .fdw,.fd.best .fdw{color:rgba(255,255,255,.65)}
 .fdb{font-size:8px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:rgba(255,255,255,.9);margin-top:4px}
+.fdp{font-size:10px;color:var(--muted);margin-top:3px}
+.fd.today .fdp,.fd.best .fdp{color:rgba(255,255,255,.65)}
 
 .wcimg{width:100%;display:block;background:var(--blue-pale);min-height:180px;object-fit:cover}
 .wcerr{width:100%;height:160px;background:var(--blue-pale);display:none;align-items:center;justify-content:center;font-size:13px;color:var(--blue-light)}
@@ -119,7 +121,7 @@ body{background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSy
   <div class="card metrics">
     <div class="metric"><div class="ml">Temp</div><div class="mv"><span id="mtemp">--</span><span class="mu">°</span></div><div class="ms" id="mtemps">--</div></div>
     <div class="metric"><div class="ml">Vind</div><div class="mv"><span id="mwind">--</span><span class="mu">m/s</span></div><div class="ms" id="mwinds">--</div></div>
-    <div class="metric"><div class="ml">Sikt</div><div class="mv" id="mvis" style="font-size:17px;padding-top:2px">--</div><div class="ms" id="mcloud">--</div></div>
+    <div class="metric"><div class="ml">Sikt</div><div class="mv" id="mvis" style="font-size:17px;padding-top:2px">--</div><div class="ms" id="mcloud">--</div></div><div class="metric"><div class="ml">Nedbør</div><div class="mv" id="mprob" style="font-size:17px;padding-top:2px">--%</div><div class="ms" id="mprecip-s">--</div></div>
   </div>
 </div>
 
@@ -183,7 +185,7 @@ function renderFc(days){
   document.getElementById('fdays').innerHTML=days.slice(0,7).map((d,i)=>{
     const cls=i===0?'fd today':d.powderScore===best&&i>0?'fd best':'fd';
     const snow=d.snowFall>0?`+${Math.round(d.snowFall)}mm`:`${Math.round(d.tempAvg)}°`;
-    return`<div class="${cls}"><div class="fdn">${dayName(d.date)}</div><div class="fds">${d.powderScore}</div><div class="fdw">${snow}</div>${d.powderScore===best&&i>0?'<div class="fdb">Best</div>':''}</div>`;
+    return`<div class="${cls}"><div class="fdn">${dayName(d.date)}</div><div class="fds">${d.powderScore}</div><div class="fdw">${snow}</div>${d.precipProbability!=null?`<div class="fdp">${d.precipProbability}%</div>`:""}</div>`;
   }).join('');
 }
 
@@ -219,6 +221,11 @@ async function load(){
     document.getElementById('mwinds').textContent=d.current.windDesc;
     document.getElementById('mvis').textContent=d.current.cloudCover<=20?'God':d.current.cloudCover<=60?'Bra':'Moderat';
     document.getElementById('mcloud').textContent=`${d.current.cloudCover}% skyer`;
+    const td=d.precip?.today;
+    if(td){
+      document.getElementById('mprob').textContent=`${td.precipProbability}%`;
+      document.getElementById('mprecip-s').textContent=td.precipType==='snow'?'Snø venta':td.precipType==='rain'?'Regn venta':td.precipType==='sleet'?'Sludd venta':'Lite nedbør';
+    }
 
     document.getElementById('tnow').textContent=b?.now||`${d.current.temperature}°C, vind ${d.current.windSpeed} m/s.`;
     document.getElementById('ttoday').textContent=b?.today||`Snøfall: ${d.forecast.days[0]?.snowFall??0}mm.`;
