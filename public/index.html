@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="nn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hodlekve</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#EBF3FC;--surface:#FFFFFF;--surface2:#F4F9FF;
+  --blue-deep:#1355A0;--blue-mid:#2B7FD4;--blue-light:#6CB4F0;--blue-pale:#C8E3F8;
+  --text:#0D1B2A;--text2:#4A6480;--muted:#8BA5BF;
+  --green:#1A7A50;--amber:#B06800;--red:#B02020;
+  --r:16px;--rs:10px;
+  --shadow:0 1px 3px rgba(19,85,160,.06),0 4px 16px rgba(19,85,160,.08)
+}
+body{background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;min-height:100vh;padding-bottom:3rem;-webkit-font-smoothing:antialiased}
+
+.header{display:flex;align-items:flex-start;justify-content:space-between;padding:2rem 1.5rem 1rem;max-width:480px;margin:0 auto}
+.lbl{font-size:11px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--blue-mid);margin-bottom:3px}
+.name{font-size:26px;font-weight:800;color:var(--text);letter-spacing:-.5px;line-height:1}
+.sub{font-size:13px;color:var(--muted);margin-top:4px}
+
+.icon-block{display:flex;flex-direction:column;align-items:center;gap:3px}
+.wi{width:54px;height:54px}
+.ctemp{font-size:22px;font-weight:800;color:var(--text);text-align:center;letter-spacing:-.5px}
+.cwind{font-size:11px;color:var(--muted);text-align:center}
+
+.hero{max-width:480px;margin:0 auto;padding:.25rem 1.5rem 1.25rem;display:flex;align-items:center;gap:1.25rem}
+.pcircle{flex-shrink:0;width:90px;height:90px;border-radius:50%;background:linear-gradient(135deg,var(--blue-mid),var(--blue-deep));display:flex;flex-direction:column;align-items:center;justify-content:center;box-shadow:0 4px 20px rgba(43,127,212,.35)}
+.pnum{font-size:38px;font-weight:900;color:#fff;line-height:1;letter-spacing:-1px}
+.plbl{font-size:9px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:rgba(255,255,255,.7);margin-top:1px}
+.verdict{font-size:16px;font-weight:700;color:var(--text);line-height:1.4}
+.vsub{font-size:13px;color:var(--text2);margin-top:4px;line-height:1.5}
+
+.upd{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--muted);padding:0 1.5rem;max-width:480px;margin:0 auto .75rem}
+.dot{width:6px;height:6px;border-radius:50%;background:var(--green);animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+
+.sec{max-width:480px;margin:0 auto;padding:0 1.5rem;margin-bottom:1rem}
+.slbl{font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:8px}
+.card{background:var(--surface);border-radius:var(--r);box-shadow:var(--shadow);overflow:hidden}
+
+.alert{display:flex;gap:10px;padding:.875rem 1rem;border-radius:var(--rs);margin-bottom:1rem;align-items:flex-start;display:none}
+.alert.on{display:flex}
+.adot{width:8px;height:8px;border-radius:50%;flex-shrink:0;margin-top:5px}
+.a-amber{background:#FEF3E0}.a-amber .adot{background:var(--amber)}
+.a-red{background:#FDECEA}.a-red .adot{background:var(--red)}
+.atitle{font-size:13px;font-weight:600;color:var(--text);margin-bottom:2px}
+.atext{font-size:12px;color:var(--text2);line-height:1.5}
+
+.metrics{display:grid;grid-template-columns:repeat(3,1fr)}
+.metric{padding:1rem;border-right:1px solid var(--bg);text-align:center}
+.metric:last-child{border-right:none}
+.ml{font-size:10px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:6px}
+.mv{font-size:22px;font-weight:800;color:var(--text);letter-spacing:-.5px;line-height:1}
+.mu{font-size:13px;font-weight:400;color:var(--text2)}
+.ms{font-size:11px;color:var(--muted);margin-top:4px}
+
+.tabs{display:flex;gap:6px;padding:1rem 1rem 0;border-bottom:1px solid var(--bg)}
+.tbtn{font-size:12px;font-weight:600;letter-spacing:.04em;padding:6px 14px;border-radius:20px;border:none;background:transparent;color:var(--muted);cursor:pointer;transition:all .15s}
+.tbtn.on{background:var(--blue-mid);color:#fff}
+.tpane{display:none;padding:1rem;font-size:14px;color:var(--text2);line-height:1.7}
+.tpane.on{display:block}
+.aibadge{display:inline-block;font-size:9px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;background:var(--blue-pale);color:var(--blue-deep);border-radius:4px;padding:2px 6px;margin-bottom:8px}
+
+.fscroll{overflow-x:auto;padding:1rem;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+.fscroll::-webkit-scrollbar{display:none}
+.fdays{display:flex;gap:8px;min-width:max-content}
+.fd{width:60px;border-radius:var(--rs);background:var(--surface2);padding:10px 0;text-align:center;flex-shrink:0}
+.fd.today{background:var(--blue-mid)}
+.fd.best{background:linear-gradient(135deg,#1B7FD4,var(--blue-deep));box-shadow:0 2px 12px rgba(43,127,212,.3)}
+.fdn{font-size:10px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-bottom:6px}
+.fd.today .fdn,.fd.best .fdn{color:rgba(255,255,255,.7)}
+.fds{font-size:20px;font-weight:900;color:var(--text);line-height:1;letter-spacing:-.5px}
+.fd.today .fds,.fd.best .fds{color:#fff}
+.fdw{font-size:10px;color:var(--muted);margin-top:4px}
+.fd.today .fdw,.fd.best .fdw{color:rgba(255,255,255,.65)}
+.fdb{font-size:8px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:rgba(255,255,255,.9);margin-top:4px}
+
+.wcimg{width:100%;display:block;background:var(--blue-pale);min-height:180px;object-fit:cover}
+.wcerr{width:100%;height:160px;background:var(--blue-pale);display:none;align-items:center;justify-content:center;font-size:13px;color:var(--blue-light)}
+.wccap{padding:.875rem 1rem;font-size:13px;color:var(--text2);line-height:1.55;border-top:1px solid var(--bg)}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div>
+    <div class="lbl">Sogndal Skisenter</div>
+    <div class="name">Hodlekve</div>
+    <div class="sub" id="sub">870 moh</div>
+  </div>
+  <div class="icon-block">
+    <svg class="wi" id="wi" viewBox="0 0 54 54" fill="none"></svg>
+    <div class="ctemp" id="ctemp">--°</div>
+    <div class="cwind" id="cwind">--</div>
+  </div>
+</div>
+
+<div class="hero">
+  <div class="pcircle">
+    <div class="pnum" id="pscore">-</div>
+    <div class="plbl">pudder</div>
+  </div>
+  <div>
+    <div class="verdict" id="verdict">Hentar data...</div>
+    <div class="vsub" id="vsub"></div>
+  </div>
+</div>
+
+<div class="upd"><div class="dot"></div><span id="updtime">Oppdaterer...</span></div>
+
+<div class="sec">
+  <div class="alert a-amber" id="abar">
+    <div class="adot"></div>
+    <div><div class="atitle" id="atitle"></div><div class="atext" id="atext"></div></div>
+  </div>
+  <div class="card metrics">
+    <div class="metric"><div class="ml">Temp</div><div class="mv"><span id="mtemp">--</span><span class="mu">°</span></div><div class="ms" id="mtemps">--</div></div>
+    <div class="metric"><div class="ml">Vind</div><div class="mv"><span id="mwind">--</span><span class="mu">m/s</span></div><div class="ms" id="mwinds">--</div></div>
+    <div class="metric"><div class="ml">Sikt</div><div class="mv" id="mvis" style="font-size:17px;padding-top:2px">--</div><div class="ms" id="mcloud">--</div></div>
+  </div>
+</div>
+
+<div class="sec">
+  <div class="slbl">Skildringar</div>
+  <div class="card">
+    <div class="tabs">
+      <button class="tbtn on" onclick="tab('now',this)">No</button>
+      <button class="tbtn" onclick="tab('today',this)">I dag</button>
+      <button class="tbtn" onclick="tab('week',this)">Veka</button>
+    </div>
+    <div class="tpane on" id="pnow"><div class="aibadge">AI · Nynorsk</div><div id="tnow">Hentar...</div></div>
+    <div class="tpane" id="ptoday"><div class="aibadge">AI · Nynorsk</div><div id="ttoday"></div></div>
+    <div class="tpane" id="pweek"><div class="aibadge">AI · Nynorsk</div><div id="tweek"></div></div>
+  </div>
+</div>
+
+<div class="sec">
+  <div class="slbl">Pudderprognose — 7 dagar</div>
+  <div class="card" style="padding:0"><div class="fscroll"><div class="fdays" id="fdays"></div></div></div>
+</div>
+
+<div class="sec">
+  <div class="slbl">Webkamera · Neumantrekket</div>
+  <div class="card" style="padding:0">
+    <img class="wcimg" id="wcimg" src="/api/webcam/image/neuman1" alt="Hodlekve webkamera" onerror="this.style.display='none';document.getElementById('wcerr').style.display='flex'">
+    <div class="wcerr" id="wcerr">Kamera ikkje tilgjengeleg</div>
+    <div class="wccap" id="wccap">Oppdatert kvart 7. minutt · cdn.norwaylive.tv</div>
+  </div>
+</div>
+
+<script>
+const DAYS=['sun','man','tys','ons','tor','fre','lau'];
+
+function tab(n,b){
+  document.querySelectorAll('.tbtn').forEach(x=>x.classList.remove('on'));
+  document.querySelectorAll('.tpane').forEach(x=>x.classList.remove('on'));
+  b.classList.add('on');
+  document.getElementById('p'+n).classList.add('on');
+}
+
+function icon(s){
+  s=(s||'').toLowerCase();
+  if(s.includes('clearsky')||s.includes('fair'))
+    return `<circle cx="27" cy="27" r="10" fill="#F5C842"/><g stroke="#F5C842" stroke-width="2.5" stroke-linecap="round"><line x1="27" y1="8" x2="27" y2="13"/><line x1="27" y1="41" x2="27" y2="46"/><line x1="8" y1="27" x2="13" y2="27"/><line x1="41" y1="27" x2="46" y2="27"/><line x1="14" y1="14" x2="18" y2="18"/><line x1="36" y1="36" x2="40" y2="40"/><line x1="40" y1="14" x2="36" y2="18"/><line x1="18" y1="36" x2="14" y2="40"/></g>`;
+  if(s.includes('snow')||s.includes('sleet'))
+    return `<rect x="12" y="16" width="30" height="13" rx="6.5" fill="#DBEEFF" stroke="#6CB4F0" stroke-width="1.5"/><circle cx="21" cy="16" r="9" fill="#DBEEFF" stroke="#6CB4F0" stroke-width="1.5"/><circle cx="33" cy="19" r="7" fill="#DBEEFF" stroke="#6CB4F0" stroke-width="1.5"/><g fill="#6CB4F0"><circle cx="18" cy="37" r="2.5"/><circle cx="27" cy="40" r="2.5"/><circle cx="36" cy="37" r="2.5"/><circle cx="22" cy="45" r="2"/><circle cx="32" cy="45" r="2"/></g>`;
+  if(s.includes('rain')||s.includes('drizzle')||s.includes('shower'))
+    return `<rect x="12" y="16" width="30" height="13" rx="6.5" fill="#DBEEFF" stroke="#6CB4F0" stroke-width="1.5"/><circle cx="21" cy="16" r="9" fill="#DBEEFF" stroke="#6CB4F0" stroke-width="1.5"/><circle cx="33" cy="19" r="7" fill="#DBEEFF" stroke="#6CB4F0" stroke-width="1.5"/><g stroke="#6CB4F0" stroke-width="2" stroke-linecap="round"><line x1="19" y1="34" x2="17" y2="41"/><line x1="27" y1="34" x2="25" y2="41"/><line x1="35" y1="34" x2="33" y2="41"/></g>`;
+  if(s.includes('partly')||s.includes('light'))
+    return `<circle cx="20" cy="22" r="8" fill="#F5C842" stroke="#E8A800" stroke-width="1.5"/><g stroke="#F5C842" stroke-width="1.5" stroke-linecap="round"><line x1="20" y1="10" x2="20" y2="13"/><line x1="8" y1="22" x2="11" y2="22"/><line x1="12" y1="14" x2="14.5" y2="16.5"/></g><rect x="17" y="29" width="22" height="13" rx="6.5" fill="#fff" stroke="#C8E3F8" stroke-width="1.5"/><circle cx="23" cy="29" r="7" fill="#fff" stroke="#C8E3F8" stroke-width="1.5"/><circle cx="32" cy="31" r="5.5" fill="#fff" stroke="#C8E3F8" stroke-width="1.5"/>`;
+  if(s.includes('fog'))
+    return `<g stroke="#9CC8E8" stroke-width="2.5" stroke-linecap="round"><line x1="11" y1="19" x2="43" y2="19"/><line x1="13" y1="27" x2="41" y2="27"/><line x1="15" y1="35" x2="39" y2="35"/></g>`;
+  return `<rect x="10" y="24" width="34" height="16" rx="8" fill="#DBEEFF" stroke="#6CB4F0" stroke-width="1.5"/><circle cx="20" cy="24" r="10" fill="#DBEEFF" stroke="#6CB4F0" stroke-width="1.5"/><circle cx="34" cy="27" r="8" fill="#DBEEFF" stroke="#6CB4F0" stroke-width="1.5"/>`;
+}
+
+function dayName(s){return DAYS[new Date(s+'T12:00:00').getDay()]}
+
+function renderFc(days){
+  const best=Math.max(...days.map(d=>d.powderScore));
+  document.getElementById('fdays').innerHTML=days.slice(0,7).map((d,i)=>{
+    const cls=i===0?'fd today':d.powderScore===best&&i>0?'fd best':'fd';
+    const snow=d.snowFall>0?`+${Math.round(d.snowFall)}mm`:`${Math.round(d.tempAvg)}°`;
+    return`<div class="${cls}"><div class="fdn">${dayName(d.date)}</div><div class="fds">${d.powderScore}</div><div class="fdw">${snow}</div>${d.powderScore===best&&i>0?'<div class="fdb">Best</div>':''}</div>`;
+  }).join('');
+}
+
+async function load(){
+  try{
+    const r=await fetch('/api/conditions?brief=1');
+    const j=await r.json();
+    if(!j.ok)throw new Error(j.error);
+    const d=j.data;
+
+    document.getElementById('sub').textContent=`870 moh · ${new Date().toLocaleTimeString('nn-NO',{hour:'2-digit',minute:'2-digit'})}`;
+    document.getElementById('wi').innerHTML=icon(d.current.symbol);
+    document.getElementById('ctemp').textContent=`${Math.round(d.current.temperature)}°`;
+    document.getElementById('cwind').textContent=d.current.windDesc;
+
+    document.getElementById('pscore').textContent=d.powderScore;
+
+    const b=d.brief?.briefs;
+    document.getElementById('verdict').textContent=b?.verdict||(d.powderScore>=7?'Gode tilhøve i dag':d.powderScore>=5?'Greit å dra i dag':'Vurder å vente');
+    document.getElementById('vsub').textContent=b?'':`${d.current.temperature}°C · ${d.current.windDesc}`;
+    document.getElementById('updtime').textContent=`Oppdatert ${new Date().toLocaleTimeString('nn-NO',{hour:'2-digit',minute:'2-digit'})}`;
+
+    if(d.alert){
+      const bar=document.getElementById('abar');
+      bar.className=`alert on ${d.alert.level==='high'?'a-red':'a-amber'}`;
+      document.getElementById('atitle').textContent=d.alert.title;
+      document.getElementById('atext').textContent=d.alert.text;
+    }
+
+    document.getElementById('mtemp').textContent=Math.round(d.current.temperature);
+    document.getElementById('mtemps').textContent=`${d.forecast.days[0]?.tempMin}° / ${d.forecast.days[0]?.tempMax}°`;
+    document.getElementById('mwind').textContent=d.current.windSpeed.toFixed(1);
+    document.getElementById('mwinds').textContent=d.current.windDesc;
+    document.getElementById('mvis').textContent=d.current.cloudCover<=20?'God':d.current.cloudCover<=60?'Bra':'Moderat';
+    document.getElementById('mcloud').textContent=`${d.current.cloudCover}% skyer`;
+
+    document.getElementById('tnow').textContent=b?.now||`${d.current.temperature}°C, vind ${d.current.windSpeed} m/s.`;
+    document.getElementById('ttoday').textContent=b?.today||`Snøfall: ${d.forecast.days[0]?.snowFall??0}mm.`;
+    document.getElementById('tweek').textContent=b?.week||'Sjå prognose nedanfor.';
+
+    renderFc(d.forecast.days);
+
+    document.getElementById('wcimg').src=`/api/webcam/image/neuman1?t=${Date.now()}`;
+    if(d.webcam?.cameras?.primary?.analysis?.caption)
+      document.getElementById('wccap').textContent=d.webcam.cameras.primary.analysis.caption;
+
+  }catch(e){
+    document.getElementById('verdict').textContent='Kunne ikkje hente data';
+    document.getElementById('vsub').textContent=e.message;
+  }
+}
+
+load();
+setInterval(load,10*60*1000);
+setInterval(()=>{document.getElementById('wcimg').src=`/api/webcam/image/neuman1?t=${Date.now()}`},7*60*1000);
+</script>
+</body>
+</html>
